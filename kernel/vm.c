@@ -88,18 +88,19 @@ walk(pagetable_t pagetable, uint64 va, int alloc)
   if(va >= MAXVA)
     panic("walk");
 
-  for(int level = 2; level > 0; level--) {
+  for(int level = 2; level > 0; level--) { //这里for只会遍历, level = 2, 1
     pte_t *pte = &pagetable[PX(level, va)];
     if(*pte & PTE_V) {
       pagetable = (pagetable_t)PTE2PA(*pte);
-    } else {
-      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0)
+    } else { //如果PTE_V位值为无效
+      if(!alloc || (pagetable = (pde_t*)kalloc()) == 0) //如果不需要分配页表或者页表分配失败
         return 0;
-      memset(pagetable, 0, PGSIZE);
-      *pte = PA2PTE(pagetable) | PTE_V;
+      memset(pagetable, 0, PGSIZE); //把分配的页表内存全部置0
+      *pte = PA2PTE(pagetable) | PTE_V; //设置上一级的页表中pte指向这一级的页表
     }
   }
-  return &pagetable[PX(0, va)];
+  //运行到这里之后只会设置level = 2和level=1页表中的pte的PTE_V
+  return &pagetable[PX(0, va)]; //返回最后一级页表中的pet
 }
 
 // Look up a virtual address, return the physical address,
