@@ -1,0 +1,13 @@
+{
+    "files.associations": {
+        "string_view": "c",
+        "system_error": "c",
+        "random": "c",
+        "riscv.h": "c",
+        "mutex": "c",
+        "__mutex_base": "c",
+        "semaphore": "c",
+        "memory": "c",
+        "stop_token": "c"
+    }
+}
