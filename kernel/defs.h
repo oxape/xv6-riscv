@@ -153,6 +153,7 @@ void            uartinit(void);
 void            uartintr(void);
 void            uartputc(int);
 void            uartputc_sync(int);
+void            uartputstring_sync(const char *s);
 int             uartgetc(void);
 
 // vm.c

@@ -184,7 +184,7 @@ proc_pagetable(struct proc *p)
     return 0;
 
   // map the trampoline code (for system call return)
-  // at the highest user virtual address.
+  // at the highecht user virtual address.
   // only the supervisor uses it, on the way
   // to/from user space, so not PTE_U.
   if(mappages(pagetable, TRAMPOLINE, PGSIZE,
@@ -444,6 +444,8 @@ wait(uint64 addr)
 void
 scheduler(void)
 {
+  static char digits[] = "0123456789abcdef";
+  char buf[64];
   struct proc *p;
   struct cpu *c = mycpu();
   
@@ -460,7 +462,32 @@ scheduler(void)
         // before jumping back to us.
         p->state = RUNNING;
         c->proc = p;
+        int index;
+        index = 0;
+        buf[index++] = 's';
+        buf[index++] = 'w';
+        buf[index++] = 't';
+        buf[index++] = 'c';
+        buf[index++] = 'h';
+        buf[index++] = '1';
+        buf[index++] = digits[(p->pid/10)%10];
+        buf[index++] = digits[p->pid%10];
+        buf[index++] = '\n';
+        buf[index++] = '\0';
+        uartputstring_sync(buf);
         swtch(&c->context, &p->context);
+        index = 0;
+        buf[index++] = 's';
+        buf[index++] = 'w';
+        buf[index++] = 't';
+        buf[index++] = 'c';
+        buf[index++] = 'h';
+        buf[index++] = '2';
+        buf[index++] = digits[(p->pid/10)%10];
+        buf[index++] = digits[p->pid%10];
+        buf[index++] = '\n';
+        buf[index++] = '\0';
+        uartputstring_sync(buf);
 
         // Process is done running for now.
         // It should have changed its p->state before coming back.
@@ -535,6 +562,8 @@ forkret(void)
 void
 sleep(void *chan, struct spinlock *lk)
 {
+  static char digits[] = "0123456789abcdef";
+  char buf[64];
   struct proc *p = myproc();
   
   // Must acquire p->lock in order to
@@ -551,7 +580,33 @@ sleep(void *chan, struct spinlock *lk)
   p->chan = chan;
   p->state = SLEEPING;
 
+
+    int index;
+    index = 0;
+    buf[index++] = 's';
+    buf[index++] = 'c';
+    buf[index++] = 'h';
+    buf[index++] = 'e';
+    buf[index++] = 'd';
+    buf[index++] = '1';
+    buf[index++] = digits[(p->pid/10)%10];
+    buf[index++] = digits[p->pid%10];
+    buf[index++] = '\n';
+    buf[index++] = '\0';
+    uartputstring_sync(buf);
   sched();
+  index = 0;
+    buf[index++] = 's';
+    buf[index++] = 'c';
+    buf[index++] = 'h';
+    buf[index++] = 'e';
+    buf[index++] = 'd';
+    buf[index++] = '2';
+    buf[index++] = digits[(p->pid/10)%10];
+    buf[index++] = digits[p->pid%10];
+    buf[index++] = '\n';
+    buf[index++] = '\0';
+    uartputstring_sync(buf);
 
   // Tidy up.
   p->chan = 0;

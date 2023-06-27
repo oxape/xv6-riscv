@@ -36,6 +36,8 @@ trapinithart(void)
 void
 usertrap(void)
 {
+  static char digits[] = "0123456789abcdef";
+  char buf[64];
   int which_dev = 0;
 
   if((r_sstatus() & SSTATUS_SPP) != 0)
@@ -77,8 +79,36 @@ usertrap(void)
     exit(-1);
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2)
+  if(which_dev == 2) {
+    struct proc *p;
+    p = myproc();
+    int index;
+    index = 0;
+    buf[index++] = 'y';
+    buf[index++] = 'i';
+    buf[index++] = 'e';
+    buf[index++] = 'l';
+    buf[index++] = 'd';
+    buf[index++] = '1';
+    buf[index++] = digits[(p->pid/10)%10];
+    buf[index++] = digits[p->pid%10];
+    buf[index++] = '\n';
+    buf[index++] = '\0';
+    uartputstring_sync(buf);
     yield();
+    index = 0;
+    buf[index++] = 'y';
+    buf[index++] = 'i';
+    buf[index++] = 'e';
+    buf[index++] = 'l';
+    buf[index++] = 'd';
+    buf[index++] = '2';
+    buf[index++] = digits[(p->pid/10)%10];
+    buf[index++] = digits[p->pid%10];
+    buf[index++] = '\n';
+    buf[index++] = '\0';
+    uartputstring_sync(buf);
+  }
 
   usertrapret();
 }
@@ -134,6 +164,8 @@ usertrapret(void)
 void 
 kerneltrap()
 {
+  static char digits[] = "0123456789abcdef";
+  char buf[64];
   int which_dev = 0;
   uint64 sepc = r_sepc();
   uint64 sstatus = r_sstatus();
@@ -151,8 +183,35 @@ kerneltrap()
   }
 
   // give up the CPU if this is a timer interrupt.
-  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING)
+  if(which_dev == 2 && myproc() != 0 && myproc()->state == RUNNING) {
+    struct proc *p;
+    p = myproc();
+    int index;
+    index = 0;
+    buf[index++] = 'y';
+    buf[index++] = 'i';
+    buf[index++] = 'e';
+    buf[index++] = 'l';
+    buf[index++] = 'd';
+    buf[index++] = '3';
+    buf[index++] = digits[(p->pid/10)%10];
+    buf[index++] = digits[p->pid%10];
+    buf[index++] = '\n';
+    buf[index++] = '\0';
+    uartputstring_sync(buf);
     yield();
+    buf[index++] = 'y';
+    buf[index++] = 'i';
+    buf[index++] = 'e';
+    buf[index++] = 'l';
+    buf[index++] = 'd';
+    buf[index++] = '4';
+    buf[index++] = digits[(p->pid/10)%10];
+    buf[index++] = digits[p->pid%10];
+    buf[index++] = '\n';
+    buf[index++] = '\0';
+    uartputstring_sync(buf);
+  }
 
   // the yield() may have caused some traps to occur,
   // so restore trap registers for use by kernelvec.S's sepc instruction.

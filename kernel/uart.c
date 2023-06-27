@@ -126,6 +126,27 @@ uartputc_sync(int c)
   pop_off();
 }
 
+void
+uartputstring_sync(const char *s)
+{
+  push_off();
+
+  if(panicked){
+    for(;;)
+      ;
+  }
+  const char *p = s;
+  while(*p) {
+    // wait for Transmit Holding Empty to be set in LSR.
+    while((ReadReg(LSR) & LSR_TX_IDLE) == 0)
+        ;
+    WriteReg(THR, *p);
+    p++;
+  }
+
+  pop_off();
+}
+
 // if the UART is idle, and a character is waiting
 // in the transmit buffer, send it.
 // caller must hold uart_tx_lock.
